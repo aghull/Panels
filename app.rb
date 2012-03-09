@@ -1,7 +1,7 @@
 require "sinatra"
-#require "sinatra/reloader" if development?
+require "sinatra/reloader" if development?
 require "mogli"
-require "rmagick"
+require "RMagick"
 include Magick
 
 enable :sessions
