@@ -59,7 +59,7 @@
 
             <a href="<%= @friends[r].id %>" onmouseover="$($(this).children()[0]).css({zIndex:1});$($(this).children()[0]).animate({scale:'2'}, 500)" onmouseout="$($(this).children()[0]).css({zIndex:0});$($(this).children()[0]).animate({scale:'1'}, 500)">
               <div style="background-color:<%= color %>; position:absolute; left:<%= 20*(index%@size+1) %>px; top:<%= 20*(index/@size+1) %>px; width:20px; height:20px">
-                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block; opacity:<%= opacity %>;"/>
+                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block; opacity:<%= "%f" % opacity %>;"/>
               </div>
             </a>
 
