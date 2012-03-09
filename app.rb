@@ -1,5 +1,8 @@
 require "sinatra"
+require "sinatra/reloader"
 require "mogli"
+require "rmagick"
+include Magick
 
 enable :sessions
 set :raise_errors, false
@@ -61,17 +64,22 @@ get "/" do
   # limit queries to 15 results
   @client.default_params[:limit] = 15
 
+  @size = 32
   @app  = Mogli::Application.find(ENV["FACEBOOK_APP_ID"], @client)
   @user = Mogli::User.find("me", @client)
 
-  # access friends, photos and likes directly through the user instance
-  @friends = @user.friends[0, 4]
-  @photos  = @user.photos[0, 16]
-  @likes   = @user.likes[0, 4]
+  @friends = @user.friends[0, 1]
+  @colors = [];
+  @friends.each do |friend|
+    res = HTTParty::get 'https://graph.facebook.com/'+friend.id+'/picture'
+    img = (Image.from_blob res.body)[0]
+    img.resize!(@size, @size);
 
-  # for other data you can always run fql
-  @friends_using_app = @client.fql_query("SELECT uid, name, is_app_user, pic_square FROM user WHERE uid in (SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1")
-
+    (0..@size**2-1).each do |px|
+      @colors = @colors.push img.pixel_color(px%@size, (px/@size).floor).intensity
+    end
+  end
+  logger.info @colors
   erb :index
 end
 
