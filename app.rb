@@ -55,7 +55,7 @@ error(Mogli::Client::HTTPException) do
 end
 
 get %r{/(\d*)} do
-  redirect "/auth/facebook" unless session[:at]
+  #redirect "/auth/facebook" unless session[:at]
   @client = Mogli::Client.new(session[:at])
 
   # limit queries to 15 results
