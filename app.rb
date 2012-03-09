@@ -79,7 +79,7 @@ get "/" do
       @colors = @colors.push img.pixel_color(px%@size, (px/@size).floor).intensity
     end
   end
-  logger.info @colors
+
   erb :index
 end
 
