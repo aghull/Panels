@@ -54,7 +54,7 @@ error(Mogli::Client::HTTPException) do
   redirect "/auth/facebook"
 end
 
-get "/*" do
+get %r{/(\d*)} do
   redirect "/auth/facebook" unless session[:at]
   @client = Mogli::Client.new(session[:at])
 
@@ -67,7 +67,7 @@ get "/*" do
 
   @friends = @user.friends.sort_by{rand}.slice(0..15)
   @colors = [];
-  @friend = params[:splat][0];
+  @friend = params[:captures].first;
   @friend = @friends[0].id if @friend.empty?;
 
   res = HTTParty::get 'https://graph.facebook.com/'+@friend+'/picture'
