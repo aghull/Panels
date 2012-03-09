@@ -17,6 +17,9 @@
     <meta property="og:image" content=""/>
     <meta property="og:site_name" content=""/>
     <meta property="fb:app_id" content="<%= @app.id %>" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="/js/jquery-css-transform.js"></script>
+    <script src="/js/jquery-animate-css-rotate-scale.js"></script>
     <script>
       function popup(pageURL, title,w,h) {
         var left = (screen.width/2)-(w/2);
@@ -54,9 +57,9 @@
   end
 %>
 
-            <a href="<%= @friends[r].id %>">
-              <div style="float:left;background-color:<%= color %>">
-                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block;opacity:<%= opacity %>;"/>
+            <a href="<%= @friends[r].id %>" onmouseover="$($(this).children()[0]).css({zIndex:1});$($(this).children()[0]).animate({scale:'2'}, 500)" onmouseout="$($(this).children()[0]).css({zIndex:0});$($(this).children()[0]).animate({scale:'1'}, 500)">
+              <div style="background-color:<%= color %>; position:absolute; left:<%= 20*(index%@size+1) %>px; top:<%= 20*(index/@size+1) %>px; width:20px; height:20px">
+                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block; opacity:<%= opacity %>;"/>
               </div>
             </a>
 
