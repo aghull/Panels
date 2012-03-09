@@ -37,18 +37,28 @@
     <![endif]-->
   </head>
   <body>
-          <% @friends.each do |friend| %>
-            <li>
-              <a href="#" onclick="window.open('http://www.facebook.com/<%= friend.id %>')">
-                <img src="https://graph.facebook.com/<%= friend.id %>/picture?type=square" alt="<%= friend.name %>">
-                <%= friend.name %>
-              </a>
-            </li>
-          <% end %>
+
           <div style="clear:both">
-          <% @colors.each_with_index do |c,index| %>
-            <img src="https://graph.facebook.com/<%= @friends[0].id %>/picture?type=square" style="width:20px;height:20px;opacity:<%= c/65535.to_f %>;display:block;float:left"/>
-            <!--div style="float:left;background:rgb(<%=c>>8%>,<%=c>>8%>,<%=c>>8%>);width:10px;height:10px;"></div-->
+          <% @colors.each_with_index do |color,index| %>
+
+<%
+  r = rand @friends.count
+  i = @imgs[r];
+  if (color>i[:value])
+    opacity = 1-(color-i[:value])/(1-i[:value])
+    color = "white"
+  else
+    opacity = 1-(i[:value]-color)/i[:value]
+    color = "black"
+  end
+%>
+
+            <a href="<%= @friends[r].id %>">
+              <div style="float:left;background-color:<%= color %>">
+                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block;opacity:<%= opacity %>;"/>
+              </div>
+            </a>
+
             <% if (index%@size==@size-1) %>
               </div><div style="clear:both">
             <% end %>

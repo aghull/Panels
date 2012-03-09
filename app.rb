@@ -3,6 +3,7 @@ require "sinatra/reloader" if development?
 require "mogli"
 require "RMagick"
 include Magick
+require "base64"
 
 enable :sessions
 set :raise_errors, false
@@ -45,10 +46,6 @@ helpers do
   def authenticator
     @authenticator ||= Mogli::Authenticator.new(ENV["FACEBOOK_APP_ID"], ENV["FACEBOOK_SECRET"], url("/auth/facebook/callback"))
   end
-
-  def first_column(item, collection)
-    return ' class="first-column"' if collection.index(item)%4 == 0
-  end
 end
 
 # the facebook session expired! reset ours and restart the process
@@ -57,27 +54,37 @@ error(Mogli::Client::HTTPException) do
   redirect "/auth/facebook"
 end
 
-get "/" do
+get "/*" do
   redirect "/auth/facebook" unless session[:at]
   @client = Mogli::Client.new(session[:at])
 
   # limit queries to 15 results
-  @client.default_params[:limit] = 15
+  @client.default_params[:limit] = 200
 
   @size = 32
   @app  = Mogli::Application.find(ENV["FACEBOOK_APP_ID"], @client)
   @user = Mogli::User.find("me", @client)
 
-  @friends = @user.friends[0, 1]
+  @friends = @user.friends.sort_by{rand}.slice(0..15)
   @colors = [];
-  @friends.each do |friend|
-    res = HTTParty::get 'https://graph.facebook.com/'+friend.id+'/picture'
-    img = (Image.from_blob res.body)[0]
-    img.resize!(@size, @size);
+  @friend = params[:splat][0];
+  @friend = @friends[0].id if @friend.empty?;
 
-    (0..@size**2-1).each do |px|
-      @colors = @colors.push img.pixel_color(px%@size, (px/@size).floor).intensity
-    end
+  res = HTTParty::get 'https://graph.facebook.com/'+@friend+'/picture'
+  img = (Image.from_blob res.body)[0]
+  img.resize!(@size, @size);
+
+  (0..@size**2-1).each do |px|
+    @colors = @colors.push img.pixel_color(px%@size, (px/@size).floor).intensity/65535.to_f
+  end
+  
+  @imgs = []
+  @friends.each do |f|
+    res = HTTParty::get 'https://graph.facebook.com/'+f.id+'/picture'
+    img = (Image.from_blob res.body)[0]
+    img.resize!(20,20)
+    value = img.resize(1,1).pixel_color(1,1).intensity/65535.to_f
+    @imgs.push :data=>Base64.encode64(img.to_blob {self.format="gif"}), :value=>value
   end
 
   erb :index
