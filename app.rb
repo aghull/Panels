@@ -60,7 +60,7 @@ get %r{/(\d*)$} do
   @friends = @user.friends.sort_by{rand}.slice(0..15)
   @colors = [];
   @friend = params[:captures].first;
-  @friend = @friends[rand @friends.count].id if @friend.empty?;
+  @friend = @user.id if @friend.empty?;
   @name = Mogli::User.find(@friend, @client).name
 
   res = HTTParty::get 'https://graph.facebook.com/'+@friend+'/picture'
