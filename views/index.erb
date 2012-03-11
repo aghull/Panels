@@ -39,13 +39,28 @@
       </script>
     <![endif]-->
   </head>
-  <body>
+  <body style="margin:14px">
 
-<div style="-moz-transform-origin:top left; -moz-transform: rotate(-90deg); position: absolute; left: 670px; top:660px; font-size: 24px; color: rgb(59, 89, 152);"><%= @name %></div>
+      <div class="name c2"><%= @name %></div>
+      <div class="name c3"><%= @name %></div>
+      <div class="name c4"><%= @name %></div>
+      <div class="name c5"><%= @name %></div>
+      <div class="name shadow"><%= @name %></div>
+      <div class="name c1"><%= @name %></div>
+      <div id="box" style="border:6px solid #3B5998; border-right-width: 40px; width:<%= @size*20 %>px; height:<%= @size*20 %>px; ">
           <div style="clear:both">
           <% @colors.each_with_index do |color,index| %>
 
 <%
+  x = index%@size
+  y = index/@size
+
+  # process large squares
+  next if @large.any? {|l| l[0]-x==-1 && l[1]-y==-1 || l[0]-x==0 && l[1]-y==-1 || l[0]-x==-1 && l[1]-y==0}
+  large = @large.include? [x,y]
+  color = (color+@colors[index+1]+@colors[index+@size]+@colors[index+@size+1])/4 if large
+            
+  # determine opacity and background to offset the value of the given image to the desired "pixel"
   r = rand @friends.count
   i = @imgs[r];
   if (color>i[:value])
@@ -58,15 +73,16 @@
 %>
 
             <a href="<%= @friends[r].id %>" onmouseover="$($(this).children()[0]).css({zIndex:1});$($(this).children()[0]).animate({scale:'2'}, 500)" onmouseout="$($(this).children()[0]).css({zIndex:0});$($(this).children()[0]).animate({scale:'1'}, 500)">
-              <div style="background-color:<%= color %>; position:absolute; left:<%= 20*(index%@size+1) %>px; top:<%= 20*(index/@size+1) %>px; width:20px; height:20px">
-                <img src="data:image/gif;base64,<%=i[:data]%>" style="display:block; opacity:<%= "%f" % opacity %>;"/>
+              <div style="background-color:<%= color %>; position:absolute; left:<%= 20*(x+1) %>px; top:<%= 20*(y+1) %>px; width:<%= large ? 40:20 %>px; height:<%= large ? 40:20 %>px">
+                <img src="data:image/gif;base64,<%=i[:data]%>" width="<%= large ? 40:20 %>" height="<%= large ? 40:20 %>" style="display:block; opacity:<%= "%f" % opacity %>;"/>
               </div>
             </a>
 
-            <% if (index%@size==@size-1) %>
+            <% if (x==@size-1) %>
               </div><div style="clear:both">
             <% end %>
           <% end %>
           </div>
+      </div>
   </body>
 </html>

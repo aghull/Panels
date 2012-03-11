@@ -14,13 +14,6 @@ unless ENV["FACEBOOK_APP_ID"] && ENV["FACEBOOK_SECRET"]
   abort("missing env vars: please set FACEBOOK_APP_ID and FACEBOOK_SECRET with your app credentials")
 end
 
-before do
-  # HTTPS redirect
-  if settings.environment == :production && request.scheme != 'https'
-    redirect "https://#{request.env['HTTP_HOST']}"
-  end
-end
-
 helpers do
   def url(path)
     base = "#{request.scheme}://#{request.env['HTTP_HOST']}"
@@ -63,21 +56,27 @@ get %r{/(\d*)$} do
   @friend = @user.id if @friend.empty?;
   @name = Mogli::User.find(@friend, @client).name
 
-  res = HTTParty::get 'https://graph.facebook.com/'+@friend+'/picture'
+  res = HTTParty::get 'http://graph.facebook.com/'+@friend+'/picture'
   img = (Image.from_blob res.body)[0]
   img.resize!(@size, @size);
 
   (0..@size**2-1).each do |px|
     @colors = @colors.push img.pixel_color(px%@size, (px/@size).floor).intensity/65535.to_f
   end
+
+  @large = []
+  while @large.length<8 do
+    x = rand(@size-1); y = rand(@size-1)
+    @large.push([x,y]) if !@large.any? {|l| l[0]-x==-1 && l[1]-y==-1 || l[0]-x==0 && l[1]-y==-1 || l[0]-x==-1 && l[1]-y==0 || l[0]-x==0 && l[1]-y==0}
+  end
   
   @imgs = []
   @friends.each do |f|
-    res = HTTParty::get 'https://graph.facebook.com/'+f.id+'/picture'
+    res = HTTParty::get 'http://graph.facebook.com/'+f.id+'/picture'
     img = (Image.from_blob res.body)[0]
-    img.resize!(20,20)
+    img.resize!(40,40)
     value = img.resize(1,1).pixel_color(1,1).intensity/65535.to_f
-    @imgs.push :data=>Base64.encode64(img.to_blob {self.format="gif"}), :value=>value
+    @imgs.push :data=>Base64.encode64(img.to_blob {self.format="gif"}), :value=>value, :id=>f.id
   end
 
   erb :index

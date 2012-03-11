@@ -1,3 +1,42 @@
 @import url("https://statics.herokuapp.com/fonts/fonts.css");
 @import url("reset.css");
 @import url("base.css");
+
+.name {
+  -moz-transform-origin:top left;
+  -moz-transform: rotate(-90deg);
+  -webkit-transform-origin:top left;
+  -webkit-transform: rotate(-90deg);
+  position: absolute;
+  left: 668px; 
+  top:654px; 
+  font-size: 24px; 
+  color: white;
+}
+
+.name.shadow {
+  top:652px; 
+  left: 669px;
+  color: black;
+}
+
+.name.c2 {
+  top:634px; 
+  opacity: .3
+}
+
+.name.c3 {
+  top:594px; 
+  opacity: .18
+}
+
+.name.c4 {
+  top:514px; 
+  opacity: .12
+}
+
+.name.c5 {
+  top:404px; 
+  opacity: .06
+}
+
