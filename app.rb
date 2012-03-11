@@ -44,13 +44,13 @@ get %r{/(\d*)$} do
   @client = Mogli::Client.new(session[:at])
 
   # limit queries to 15 results
-  @client.default_params[:limit] = 200
+  @client.default_params[:limit] = 500
 
   @size = 32
   @app  = Mogli::Application.find(ENV["FACEBOOK_APP_ID"], @client)
   @user = Mogli::User.find("me", @client)
 
-  @friends = @user.friends.sort_by{rand}.slice(0..15)
+  @friends = @user.friends.sort_by{rand}.slice(0..25)
   @colors = [];
   @friend = params[:captures].first;
   @friend = @user.id if @friend.empty?;
@@ -65,9 +65,9 @@ get %r{/(\d*)$} do
   end
 
   @large = []
-  while @large.length<8 do
+  while @large.length<16 do
     x = rand(@size-1); y = rand(@size-1)
-    @large.push([x,y]) if !@large.any? {|l| l[0]-x==-1 && l[1]-y==-1 || l[0]-x==0 && l[1]-y==-1 || l[0]-x==-1 && l[1]-y==0 || l[0]-x==0 && l[1]-y==0}
+    @large.push([x,y]) if !@large.any? { |l| (l[0]-x).abs<2 && (l[1]-y).abs<2 }
   end
   
   @imgs = []
